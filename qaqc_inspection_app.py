@@ -329,8 +329,7 @@ with st.container(border=True):
         st.rerun()
 
     if inspect_clicked:
-        if inspect_clicked:
-    if pil_img is None:
+		if pil_img is None:
         st.error("Please capture or upload an image first.")
     else:
         with st.spinner("Analyzing defect image..."):
