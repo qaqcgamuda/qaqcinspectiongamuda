@@ -333,19 +333,19 @@ with st.container(border=True):
             st.error("Please capture or upload an image first.")
         else:
             with st.spinner("Analyzing defect image..."):
-			
-            defect, confidence, probs = predict_defect(model, pil_img)
-            decision = qaqc_decision(defect)
 
-            detections = detect_regions(pil_img, model)
-            boxed_img = draw_boxes(pil_img, detections)
+                 defect, confidence, probs = predict_defect(model, pil_img)
+                 decision = qaqc_decision(defect)
 
-            st.session_state["prediction_ready"] = True
-            st.session_state["predicted_defect"] = defect
-            st.session_state["confidence"] = confidence
-            st.session_state["probs"] = probs
-            st.session_state["qaqc_result"] = decision
-            st.session_state["boxed_image"] = boxed_img
+                 detections = detect_regions(pil_img, model)
+                 boxed_img = draw_boxes(pil_img, detections)
+
+                 st.session_state["prediction_ready"] = True
+                 st.session_state["predicted_defect"] = defect
+                 st.session_state["confidence"] = confidence
+                 st.session_state["probs"] = probs
+                 st.session_state["qaqc_result"] = decision
+                 st.session_state["boxed_image"] = boxed_img
 	
     if st.session_state["prediction_ready"]:
     if "boxed_image" in st.session_state:
