@@ -329,27 +329,24 @@ with st.container(border=True):
         st.rerun()
 
     if inspect_clicked:
-		if pil_img is None:
-            st.error("Please capture or upload an image first.")
-    else:
+        if pil_img is None:
+        st.error("Please capture or upload an image first.")
+        else:
             with st.spinner("Analyzing defect image..."):
 
-            # ORIGINAL prediction
             defect, confidence, probs = predict_defect(model, pil_img)
             decision = qaqc_decision(defect)
 
-            # 🔥 NEW: PATCH DETECTION
-            detections = detect_regions(pil_img, model, grid_size=3, threshold=0.5)
+            # PATCH DETECTION
+            detections = detect_regions(pil_img, model)
             boxed_img = draw_boxes(pil_img, detections)
 
-            # SAVE RESULT
             st.session_state["prediction_ready"] = True
             st.session_state["predicted_defect"] = defect
             st.session_state["confidence"] = confidence
             st.session_state["probs"] = probs
             st.session_state["qaqc_result"] = decision
             st.session_state["boxed_image"] = boxed_img
-
 	
     if st.session_state["prediction_ready"]:
     if "boxed_image" in st.session_state:
