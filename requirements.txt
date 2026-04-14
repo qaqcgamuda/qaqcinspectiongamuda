@@ -4,3 +4,4 @@ pillow
 pandas
 requests
 numpy
+opencv-python-headless
