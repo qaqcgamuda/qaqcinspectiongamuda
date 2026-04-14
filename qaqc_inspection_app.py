@@ -333,11 +333,10 @@ with st.container(border=True):
             st.error("Please capture or upload an image first.")
         else:
             with st.spinner("Analyzing defect image..."):
-
+			
             defect, confidence, probs = predict_defect(model, pil_img)
             decision = qaqc_decision(defect)
 
-            # PATCH DETECTION
             detections = detect_regions(pil_img, model)
             boxed_img = draw_boxes(pil_img, detections)
 
