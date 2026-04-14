@@ -1,6 +1,7 @@
 import io
 import json
 import base64
+import cv2
 from datetime import datetime
 from pathlib import Path
 from typing import Tuple
@@ -78,6 +79,64 @@ def predict_defect(model, img: Image.Image) -> Tuple[str, float, np.ndarray]:
     confidence = float(preds[idx])
     return defect, confidence, preds
 
+
+def detect_regions(image: Image.Image, model, grid_size=3, threshold=0.5):
+    width, height = image.size
+    results = []
+
+    patch_w = width // grid_size
+    patch_h = height // grid_size
+
+    for i in range(grid_size):
+        for j in range(grid_size):
+            left = j * patch_w
+            top = i * patch_h
+            right = left + patch_w
+            bottom = top + patch_h
+
+            patch = image.crop((left, top, right, bottom))
+
+            defect, confidence, _ = predict_defect(model, patch)
+
+            if confidence > threshold and defect != "good_surface":
+                results.append({
+                    "box": (left, top, right, bottom),
+                    "label": defect,
+                    "confidence": confidence
+                })
+
+    return results
+
+
+def draw_boxes(image: Image.Image, detections):
+    img = np.array(image)
+
+    color_map = {
+        "honeycomb": (255, 0, 0),      # Blue
+        "segregation": (0, 255, 255),  # Yellow
+        "loose_grout": (0, 0, 255),    # Red
+        "exposed_surface": (255, 255, 0),
+    }
+
+    for det in detections:
+        x1, y1, x2, y2 = det["box"]
+        label = det["label"]
+        conf = det["confidence"]
+
+        color = color_map.get(label, (255, 255, 255))
+
+        cv2.rectangle(img, (x1, y1), (x2, y2), color, 2)
+        cv2.putText(
+            img,
+            f"{label} ({conf:.2f})",
+            (x1, y1 - 5),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.5,
+            color,
+            2
+        )
+
+    return img
 
 def qaqc_decision(defect: str) -> str:
     return "PASS" if defect in PASS_CLASSES else "FAIL"
@@ -270,20 +329,36 @@ with st.container(border=True):
         st.rerun()
 
     if inspect_clicked:
-        if pil_img is None:
-            st.error("Please capture or upload an image first.")
-        else:
-            with st.spinner("Analyzing defect image..."):
-                defect, confidence, probs = predict_defect(model, pil_img)
-                decision = qaqc_decision(defect)
+        if inspect_clicked:
+    if pil_img is None:
+        st.error("Please capture or upload an image first.")
+    else:
+        with st.spinner("Analyzing defect image..."):
 
-                st.session_state["prediction_ready"] = True
-                st.session_state["predicted_defect"] = defect
-                st.session_state["confidence"] = confidence
-                st.session_state["probs"] = probs
-                st.session_state["qaqc_result"] = decision
+            # ORIGINAL prediction
+            defect, confidence, probs = predict_defect(model, pil_img)
+            decision = qaqc_decision(defect)
 
+            # 🔥 NEW: PATCH DETECTION
+            detections = detect_regions(pil_img, model, grid_size=3, threshold=0.5)
+            boxed_img = draw_boxes(pil_img, detections)
+
+            # SAVE RESULT
+            st.session_state["prediction_ready"] = True
+            st.session_state["predicted_defect"] = defect
+            st.session_state["confidence"] = confidence
+            st.session_state["probs"] = probs
+            st.session_state["qaqc_result"] = decision
+            st.session_state["boxed_image"] = boxed_img
+
+	
     if st.session_state["prediction_ready"]:
+    if "boxed_image" in st.session_state:
+    st.image(
+        st.session_state["boxed_image"],
+        caption="Detected Defect Areas",
+        use_container_width=True
+    )
         defect = st.session_state["predicted_defect"]
         confidence = st.session_state["confidence"]
         decision = st.session_state["qaqc_result"]
