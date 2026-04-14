@@ -330,9 +330,9 @@ with st.container(border=True):
 
     if inspect_clicked:
 		if pil_img is None:
-        st.error("Please capture or upload an image first.")
+            st.error("Please capture or upload an image first.")
     else:
-        with st.spinner("Analyzing defect image..."):
+            with st.spinner("Analyzing defect image..."):
 
             # ORIGINAL prediction
             defect, confidence, probs = predict_defect(model, pil_img)
