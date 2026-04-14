@@ -348,12 +348,14 @@ with st.container(border=True):
                  st.session_state["boxed_image"] = boxed_img
 	
     if st.session_state["prediction_ready"]:
-    if "boxed_image" in st.session_state:
-    st.image(
-        st.session_state["boxed_image"],
-        caption="Detected Defect Areas",
-        use_container_width=True
-    )
+		
+        if "boxed_image" in st.session_state:
+            st.image(
+                st.session_state["boxed_image"],
+                caption="Detected Defect Areas",
+                use_container_width=True
+             ) 
+			
         defect = st.session_state["predicted_defect"]
         confidence = st.session_state["confidence"]
         decision = st.session_state["qaqc_result"]
