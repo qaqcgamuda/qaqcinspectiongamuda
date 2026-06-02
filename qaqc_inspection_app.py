@@ -16,7 +16,7 @@ from tensorflow.keras.applications.mobilenet_v2 import preprocess_input
 
 
 APP_TITLE = "AI-Based QAQC Inspection System"
-MODEL_PATH = "fine_tuned_mobilenetv2_defect_model.h5"
+MODEL_PATH = "my_mobilenetv2_model.h5"
 ALLOWED_DOMAIN = "gamuda.com.my"   
 GOOGLE_SHEETS_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbxoMvixenlh6PpOtDw0LgwB6lVRwAwI6kj6wdZyQ3Kit3icsUjWGh7W3AcA0BypuGby0Q/exec"  
 
